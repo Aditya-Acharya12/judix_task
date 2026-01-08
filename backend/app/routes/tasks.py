@@ -35,4 +35,24 @@ async def delete_task(task_id: str, user=Depends(get_current_user)):
     if result.deleted_count == 0:
         return {"message": "Task not found"}
     return {"message": "Task deleted successfully"}
+
+@router.patch("/{task_id}")
+async def update_task_status(
+    task_id: str,
+    user=Depends(get_current_user)
+):
+    result = await tasks_collection.update_one(
+        {
+            "_id": ObjectId(task_id),
+            "user_id": user["_id"]
+        },
+        {
+            "$set": {"completed": True}
+        }
+    )
+
+    if result.matched_count == 0:
+        return {"message": "Task not found"}
+
+    return {"message": "Task marked as completed"}
     

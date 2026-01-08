@@ -21,12 +21,13 @@ async def register(user: UserCreate):
 
 @router.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    print("LOGIN ATTEMPT:", form_data.username)
+
     user = await users_collection.find_one({"email": form_data.username})
+    print("USER FOUND:", bool(user))
+
     if not user or not verify_password(form_data.password, user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     token = create_access_token({"sub": str(user["_id"])})
-    return {
-        "access_token": token,
-        "token_type": "bearer"
-    }
+    return {"access_token": token, "token_type": "bearer"}
